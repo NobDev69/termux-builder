@@ -4,39 +4,21 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch: # Allow manual triggering
 
 jobs:
-  build-bootstrap:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Docker
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
-
-    # Step 3: Install dependencies
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git wget unzip
-
-    # Step 4: Run the build script
-    - name: Execute build script
+    - name: Set up environment
+      env:
+        TOKEN: ${{ secrets.TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+      
+    - name: Run build script
       run: |
         chmod +x build.sh
         ./build.sh
-
-    # Step 5: Upload artifacts
-    - name: Upload Bootstrap Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: bootstrap-aarch64
-        path: termux-packages/outputs/bootstrap-aarch64.zip
+      shell: bash
