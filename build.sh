@@ -1,4 +1,5 @@
 #!/bin/bash
+# hello 
 # Script to build Termux packages with a custom package list and bootstrap file.
 
 # Telegram Variables (set these in your GitHub Actions workflow or environment variables)
