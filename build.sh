@@ -1,9 +1,9 @@
 #!/bin/bash
 # Script to build Termux packages with a custom package list and bootstrap file.
 
-# Telegram Variables from GitHub Secrets
-token="${{ secrets.TOKEN }}"
-chat_id="${{ secrets.CHAT_ID }}"
+# Telegram Variables (set these in your GitHub Actions workflow or environment variables)
+token="${TOKEN}"
+chat_id="${CHAT_ID}"
 
 # Function to send Telegram messages
 function post_msg() {
@@ -36,6 +36,7 @@ wget -q -O build-bootstrap.sh \
 
 echo "[*] Moving build-bootstrap.sh to scripts folder..."
 mv build-bootstrap.sh termux-packages/scripts/
+chmod +x termux-packages/scripts/build-bootstrap.sh # Fix: Ensure it is executable
 
 # Step 3: Update properties.sh for custom package name
 echo "[*] Updating TERMUX_APP_PACKAGE in properties.sh..."
@@ -48,106 +49,7 @@ cat > termux-packages/packages.list <<EOF
 apt
 bash-completion
 bash
-bzip2
-ca-certificates
-clang
-command-not-found
-coreutils
-curl
-dash
-debianutils
-dialog
-diffutils
-dos2unix
-dpkg
-ed
-findutils
-gawk
-gdbm
-glib
-gpgv
-grep
-gzip
-inetutils
-iw
-less
-libandroid-glob
-libandroid-posix-semaphore
-libandroid-support
-libassuan
-libbz2
-libc++
-libcap-ng
-libcompiler-rt
-libcrypt
-libcurl
-libevent
-libexpat
-libffi
-libgcrypt
-libgmp
-libgnutls
-libgpg-error
-libiconv
-libidn2
-libllvm
-liblz4
-liblzma
-libmd
-libmpfr
-libnettle
-libnghttp2
-libnghttp3
-libnl
-libnpth
-libsmartcols
-libsqlite
-libssh2
-libtirpc
-libunbound
-libunistring
-libxml2
-lld
-llvm
-lsof
-make
-nano
-ncurses-ui-libs
-ncurses
-ndk-sysroot
-net-tools
-oneshot
-openssl
-patch
-pcre2
-pcre
-pixiewps
-pkg-config
-procps
-psmisc
-python-ensurepip-wheels
-python-pip
-python
-readline
-resolv-conf
-root-repo
-sed
-tar
-termux-am-socket
-termux-am
-termux-exec
-termux-keyring
-termux-licenses
-termux-tools
-tsu
-unbound
-unzip
-util-linux
-wpa-supplicant
-xxhash
-xz-utils
-zlib
-zstd
+# Add more packages here as needed
 EOF
 
 # Step 5: Start Docker environment
@@ -162,7 +64,9 @@ cd termux-packages || {
 # Step 6: Build custom bootstrap file with additional packages
 echo "[*] Building bootstrap for architecture: aarch64..."
 ./scripts/build-bootstrap.sh --architectures aarch64 || {
-    echo "[!] Failed to build bootstrap. Exiting."; exit 1;
+    echo "[!] Failed to build bootstrap. Exiting.";
+    post_msg "Error: Failed to build bootstrap. Exiting."
+    exit 1;
 }
 
 # Step 7: Verify the bootstrap file
