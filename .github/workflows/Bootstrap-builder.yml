@@ -20,7 +20,12 @@ jobs:
       run: |
         echo "TOKEN=${{ secrets.TOKEN }}" >> $GITHUB_ENV
         echo "CHAT_ID=${{ secrets.CHAT_ID }}" >> $GITHUB_ENV
-      
+
+    - name: Prepare Docker environment
+      run: |
+        docker pull ghcr.io/termux/package-builder:latest
+        docker run --rm -v $PWD:/repo ghcr.io/termux/package-builder:latest /bin/bash -c "chmod -R 777 /repo && ./scripts/build-bootstrap.sh"
+
     - name: Run build script
       run: |
         bash build.sh
