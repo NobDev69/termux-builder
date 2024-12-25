@@ -1,5 +1,8 @@
 name: Build Termux Bootstrap
 
+env:
+  token: ${{ secrets.TOKEN }}
+  chat_id: ${{ secrets.CHAT_ID }}
 on:
   push:
     branches:
@@ -12,10 +15,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up environment
-      env:
-        TOKEN: ${{ secrets.TOKEN }}
-        CHAT_ID: ${{ secrets.CHAT_ID }}
+    - name: Set up environment variables
+        run: |
+          echo "TOKEN=${{ secrets.TOKEN }}" >> $GITHUB_ENV
+          echo "CHAT_ID=${{ secrets.CHAT_ID }}" >> $GITHUB_ENV
       
     - name: Run build script
       run: |
