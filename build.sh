@@ -1,6 +1,28 @@
 #!/bin/bash
 # Script to build Termux packages with a custom package list and bootstrap file.
 
+# Telegram Variables from GitHub Secrets
+token="${{ secrets.TOKEN }}"
+chat_id="${{ secrets.CHAT_ID }}"
+
+# Function to send Telegram messages
+function post_msg() {
+	curl -s -X POST "https://api.telegram.org/bot$token/sendMessage" \
+	-d chat_id="$chat_id" \
+	-d "disable_web_page_preview=true" \
+	-d "parse_mode=html" \
+	-d text="$1"
+}
+
+# Function to send Telegram documents
+function push() {
+	curl -F document=@$1 "https://api.telegram.org/bot$token/sendDocument" \
+	-F chat_id="$chat_id" \
+	-F "disable_web_page_preview=true" \
+	-F "parse_mode=html" \
+	-F caption="$2"
+}
+
 # Step 1: Clone the termux-packages repository
 echo "[*] Cloning Termux packages repository..."
 git clone https://github.com/termux/termux-packages.git || {
@@ -147,8 +169,11 @@ echo "[*] Building bootstrap for architecture: aarch64..."
 echo "[*] Verifying bootstrap file..."
 if [ -f "outputs/bootstrap-aarch64.zip" ]; then
     echo "[*] Bootstrap file generated successfully: outputs/bootstrap-aarch64.zip"
+    post_msg "Bootstrap file successfully built: bootstrap-aarch64.zip"
+    push "outputs/bootstrap-aarch64.zip" "Here is the generated bootstrap-aarch64.zip."
 else
     echo "[!] Bootstrap file not found. Check the build process."
+    post_msg "Error: Bootstrap file not found. Build failed."
     exit 1;
 fi
 
